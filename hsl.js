@@ -5,16 +5,24 @@ var amqp = require('amqplib/callback_api')
 
 amqp.connect('amqp://localhost', function(err, conn) {
     conn.createChannel(function(err, ch) {
-        var q = 'hsl_queue';
+        var ex = 'hsl_queue';
 
-        ch.assertQueue(q, {durable: false});
+        ch.assertExchange(ex, 'fanout', {durable: false});
 
         hslclient.on('connect', function () {
-          hslclient.subscribe('/hfp/journey/tram/+/1009/#');
+            var subs = '/hfp/journey/tram/+/1009/#';
+
+            hslclient.subscribe(subs, function(err, granted) {
+                console.log('subscribed to %s, (%s)', granted[0].topic, granted[0].qos);
+            });
         });
          
         hslclient.on('message', function (topic, message) {
-            ch.sendToQueue(q, new Buffer(message), {persistent: false});
+            //glue topic to message
+            message = JSON.parse(message);
+            message.topic = topic;
+
+            ch.publish(ex, '', new Buffer(JSON.stringify(message)));
         });
     });
 });
