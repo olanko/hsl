@@ -17,8 +17,11 @@ function get_positions(cb) {
                         trams = _(msg).map(function(t) {
                           return {
                             lat: t.VP.lat,
-                            long: t.VP.long,
-                            message: t.VP.veh
+                            lng: t.VP.long,
+                            message: t.VP.veh,
+                            hdg: t.VP.hdg,
+                            spd: t.VP.spd,
+                            dl: t.VP.dl
                           };
                         }).keyBy('message').value();
 
