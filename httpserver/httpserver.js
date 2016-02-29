@@ -25,6 +25,9 @@ function get_positions(cb) {
                           };
                         }).keyBy('message').value();
 
+                        setTimeout(function() {
+                          conn.close();
+                        }, 1000);
                         cb(trams);
                     }
                 }, {noAck: true});
