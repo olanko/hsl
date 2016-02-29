@@ -10,7 +10,8 @@ amqp.connect('amqp://192.168.0.2', function(err, conn) {
         ch.assertExchange(ex, 'direct', {durable: false});
 
         hslclient.on('connect', function () {
-            var subs = '/hfp/journey/tram/+/1009/#';
+            //var subs = '/hfp/journey/tram/+/1009/#';
+            var subs = '/hfp/journey/tram/#';
 
             hslclient.subscribe(subs, function(err, granted) {
                 console.log('subscribed to %s, (%s)', granted[0].topic, granted[0].qos);
