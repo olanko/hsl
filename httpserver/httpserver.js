@@ -1,21 +1,28 @@
 var amqp = require('amqplib/callback_api');
+var _ = require('lodash');
 
 function get_positions(cb) {
+    var trams = {};
     amqp.connect('amqp://192.168.0.2', function(err, conn) {
         conn.createChannel(function(err, ch) {
             ch.assertQueue('', {exclusive: true}, function(err, q) {
                 var corr = generateUuid();
-                //var vehid = args[0];
-
-                console.log(' [x] Requesting positions(%d)');
 
                 ch.consume(q.queue, function(msg) {
                     if (msg.properties.correlationId == corr) {
 
-                        console.log(' [.] Got %s', msg.content.toString());
-                        conn.close();
+                        console.log('reload at ' + Date.now());
 
-                        cb(msg.content.toString());
+                        msg = JSON.parse(msg.content);
+                        trams = _(msg).map(function(t) {
+                          return {
+                            lat: t.VP.lat,
+                            long: t.VP.long,
+                            message: t.VP.veh
+                          };
+                        }).keyBy('message').value();
+
+                        cb(trams);
                     }
                 }, {noAck: true});
 
@@ -40,8 +47,8 @@ const port = 5005;
 
 http.createServer((req, res) => {
   get_positions(positions => {
-      positions = JSON.parse(positions);
       res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.writeHead(200, { 'Access-Control-Allow-Origin': '*' });
       res.end(JSON.stringify(positions));
   });
 }).listen(port, hostname, () => {
