@@ -78,7 +78,6 @@ amqp.connect('amqp://192.168.0.2', function(err, conn) {
         ch.assertQueue(q, {durable: false});
         console.log(' [hsl_request_channel] Awaiting requests');
         ch.consume(q, function reply(msg) {
-            console.log(msg.content);
             hsl_subscribe('*');
             ch.ack(msg);
         });
