@@ -24,8 +24,6 @@ var hsl_check_channel_activity = function() {
         if (v.last_active + wait_until_unsubscribe < Date.now()) {
             hsl_unsubsribe(v.name);
         }
-        console.log(v.last_active + wait_until_unsubscribe, Date.now());
-        console.log(v, k);
     });
 
     setTimeout(hsl_check_channel_activity, 2000);
