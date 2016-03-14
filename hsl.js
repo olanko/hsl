@@ -36,6 +36,10 @@ var hsl_subscribe = function(subs) {
 
     if (!channels[subs]) {
         hslclient.subscribe(subs, function(err, granted) {
+            if (err) {
+              console.error(err);
+              process.exit(1);
+            }
             console.log('subscribed to %s, (%s)', granted[0].topic, granted[0].qos);
             channels[subs] = { name: subs };
             channel_active(channels[subs]);
@@ -47,13 +51,25 @@ var hsl_subscribe = function(subs) {
 };
 var hsl_unsubsribe = function(subs) {
     hslclient.unsubscribe(subs, function(err, resp) {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
         delete channels[subs];
         console.log('unsubscribe %s', subs);
     });
 };
 
 amqp.connect('amqp://192.168.0.2', function(err, conn) {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
     conn.createChannel(function(err, ch) {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
         var ex = 'hsl_exchange';
 
         ch.assertExchange(ex, 'direct', {durable: false});
@@ -73,6 +89,10 @@ amqp.connect('amqp://192.168.0.2', function(err, conn) {
 
     /* request subsription */
     conn.createChannel(function(err, ch) {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
         var q = 'hsl_request_channel';
 
         ch.assertQueue(q, {durable: false});
